@@ -1,6 +1,8 @@
 package main
 
 import (
+	"goaway/internal/handlers"
+	"goaway/internal/repositories"
 	"log"
 	"os"
 
@@ -11,10 +13,18 @@ import (
 func main() {
 	// Load .env
 
-	err := godotenv.Load("./configs/.env")
+	err := godotenv.Load("configs/.env")
 	if err != nil {
-		log.Fatal("Failed to load .env:", err)
+		log.Fatal("Failed to load .env file:", err)
 	}
+
+	// Connect to PostgreSQL Database
+
+	err = repositories.StartPostgreSQL()
+	if err != nil {
+		log.Fatal("Could not connect to database:", err)
+	}
+	log.Println("Connecting to PostgreSQL database successfully")
 
 	// Set Release Mode for Gin
 
@@ -23,8 +33,8 @@ func main() {
 
 	// Handlers
 
-	r.POST("/register")
-	r.POST("/login")
+	r.POST("/reg", handlers.Reg)
+	r.POST("/login", handlers.Login)
 	r.POST("/logout")
 
 	r.POST("/new")
@@ -33,5 +43,5 @@ func main() {
 	// Run server
 
 	log.Println("The server is running on :8080")
-	r.Run(":%v", os.Getenv("PORT"))
+	r.Run(":" + os.Getenv("PORT"))
 }
