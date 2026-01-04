@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -39,12 +40,30 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 
-	r.GET("/:id", handlers.Redirect)
+	// CORS
+
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{os.Getenv("ADDRESS")},
+		AllowMethods:     []string{"POST", "GET", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type"},
+		AllowCredentials: true,
+	}))
+
+	// Handlers
+
 	r.POST("/reg", handlers.Reg)
 	r.POST("/login", handlers.Login)
-	r.POST("/logout", handlers.Logout)
 
-	r.POST("/new", handlers.New)
+	profile := r.Group("/u")
+	profile.Use(handlers.AuthMiddleware())
+	{
+		profile.POST("/new", handlers.New)
+		profile.POST("/logout", handlers.Logout)
+		profile.GET("/links")
+		profile.GET("/links/:id")
+	}
+
+	r.GET("/:id", handlers.Redirect)
 
 	log.Println("The server is running on :8080")
 	r.Run(":" + os.Getenv("PORT"))

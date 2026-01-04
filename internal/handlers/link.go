@@ -10,24 +10,17 @@ import (
 )
 
 func New(c *gin.Context) {
+	userID := c.MustGet("user_id").(uint)
+
 	var req models.LinkRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid JSON"})
 		return
 	}
 
-	token, err := c.Cookie("session_token")
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid session"})
-		return
-	}
-
-	shortUrl, err := services.New(req.URL, token)
+	shortUrl, err := services.New(req.URL, userID)
 	if err != nil {
 		switch err {
-		case services.ErrValidateSession:
-			c.JSON(http.StatusUnauthorized, gin.H{"error": err})
-			return
 		case services.ErrInvalidRequest:
 			c.JSON(http.StatusBadRequest, gin.H{"error": err})
 			return

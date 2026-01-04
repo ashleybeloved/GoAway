@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"goaway/internal/middleware"
 	"goaway/internal/models"
 	"goaway/internal/services"
 	"net/http"
@@ -10,10 +11,37 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func AuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		token, err := c.Cookie("session_token")
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "you are logged out"})
+			return
+		}
+
+		userID, err := middleware.CheckAuth(token)
+		if err != nil {
+			switch err {
+			case middleware.ErrLoggedOut:
+				c.JSON(http.StatusBadRequest, gin.H{"error": err})
+				return
+			default:
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+				return
+			}
+		}
+
+		c.Set("user_id", userID)
+		c.Set("session_token", token)
+
+		c.Next()
+	}
+}
+
 func Reg(c *gin.Context) {
 	var req models.AuthRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid JSON"})
 		return
 	}
 
@@ -44,7 +72,7 @@ func Reg(c *gin.Context) {
 		}
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "You are successfully registered!"})
+	c.JSON(http.StatusOK, gin.H{"message": "you are successfully registered!"})
 }
 
 func Login(c *gin.Context) {
@@ -86,13 +114,9 @@ func Login(c *gin.Context) {
 }
 
 func Logout(c *gin.Context) {
-	token, err := c.Cookie("session_token")
-	if err != nil {
-		c.JSON(http.StatusOK, gin.H{"message": "Already logged out"})
-		return
-	}
+	token := c.MustGet("session_token").(string)
 
-	err = services.Logout(token)
+	err := services.Logout(token)
 	if err != nil {
 		switch err {
 		case services.ErrDelSession:
