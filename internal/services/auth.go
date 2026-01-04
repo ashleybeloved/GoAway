@@ -12,6 +12,7 @@ type AuthError string
 func (e AuthError) Error() string { return string(e) }
 
 var (
+	ErrInvalidJSON      = AuthError("invalid JSON")
 	ErrInvalidChars     = AuthError("invalid chars in login")
 	ErrLoginTooShort    = AuthError("login too short")
 	ErrPasswordTooShort = AuthError("password too short")
@@ -25,15 +26,15 @@ var (
 )
 
 func Reg(login string, password string) error {
-	// Check for invalid chars in login
+	if len(login) == 0 && len(password) == 0 {
+		return ErrInvalidJSON
+	}
 
 	for _, r := range login {
 		if !unicode.Is(unicode.Latin, r) && !unicode.IsDigit(r) {
 			return ErrInvalidChars
 		}
 	}
-
-	// Check for lenght login & password
 
 	if len(login) < 3 {
 		return ErrLoginTooShort
@@ -43,21 +44,15 @@ func Reg(login string, password string) error {
 		return ErrPasswordTooShort
 	}
 
-	// Check for avaiblity login in DB
-
 	user, err := repositories.FindUserByLogin(login)
 	if err == nil && user != nil {
 		return ErrUserExists
 	}
 
-	// Hash password
-
 	hashedPassword, err := pkg.HashPassword(password)
 	if err != nil {
 		return ErrHashPassword
 	}
-
-	// Add user in DB
 
 	err = repositories.CreateUser(login, hashedPassword)
 	if err != nil {
@@ -68,6 +63,10 @@ func Reg(login string, password string) error {
 }
 
 func Login(login string, password string) (string, error) {
+	if len(login) == 0 && len(password) == 0 {
+		return "", ErrInvalidJSON
+	}
+
 	user, err := repositories.FindUserByLogin(login)
 	if err != nil || user == nil {
 		return "", ErrUserNotExists

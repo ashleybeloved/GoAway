@@ -61,6 +61,7 @@ func main() {
 		profile.POST("/logout", handlers.Logout)
 		profile.GET("/links")
 		profile.GET("/links/:id")
+		profile.DELETE("/links/:id")
 	}
 
 	r.GET("/:id", handlers.Redirect)

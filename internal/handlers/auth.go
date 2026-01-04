@@ -48,6 +48,9 @@ func Reg(c *gin.Context) {
 	err := services.Reg(req.Login, req.Password)
 	if err != nil {
 		switch err {
+		case services.ErrInvalidJSON:
+			c.JSON(http.StatusBadRequest, gin.H{"error": err})
+			return
 		case services.ErrInvalidChars:
 			c.JSON(http.StatusBadRequest, gin.H{"error": err})
 			return
@@ -85,6 +88,9 @@ func Login(c *gin.Context) {
 	sessionToken, err := services.Login(req.Login, req.Password)
 	if err != nil {
 		switch err {
+		case services.ErrInvalidJSON:
+			c.JSON(http.StatusBadRequest, gin.H{"error": err})
+			return
 		case services.ErrUserNotExists:
 			c.JSON(http.StatusForbidden, gin.H{"error": err})
 			return
