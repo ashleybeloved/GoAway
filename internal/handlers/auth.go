@@ -5,6 +5,7 @@ import (
 	"goaway/internal/services"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -68,10 +69,13 @@ func Login(c *gin.Context) {
 		}
 	}
 
+	timeToLiveStr := os.Getenv("TIME_TO_LIVE")
+	timeToLive, _ := strconv.Atoi(timeToLiveStr)
+
 	c.SetCookie(
 		"session_token",     // Name of the cookie
 		sessionToken,        // Value (the generated UUID)
-		3600*24,             // MaxAge in seconds (24 hours)
+		3600*timeToLive,     // MaxAge in seconds
 		"/",                 // Path (accessible on all routes)
 		os.Getenv("DOMAIN"), // Domain
 		false,               // Secure: set to true only if using HTTPS

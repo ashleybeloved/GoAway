@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -33,8 +34,13 @@ func StartRedis() error {
 
 func SetSession(token string, userID uint) error {
 	key := "session:" + token
+	timeToLiveStr := os.Getenv("TIME_TO_LIVE")
+	timeToLive, err := strconv.Atoi(timeToLiveStr)
+	if err != nil {
+		return err
+	}
 
-	return rdb.Set(ctx, key, userID, 24*time.Hour).Err()
+	return rdb.Set(ctx, key, userID, time.Duration(timeToLive)*time.Hour).Err()
 }
 
 func GetSession(token string) (string, error) {
