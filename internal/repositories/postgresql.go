@@ -15,12 +15,12 @@ var err error
 func StartPostgreSQL() error {
 	// Connecting to PostgreSQL server
 
-	host := os.Getenv("DB_HOST")
-	user := os.Getenv("DB_USER")
-	password := os.Getenv("DB_PASSWORD")
-	dbname := os.Getenv("DB_NAME")
-	port := os.Getenv("DB_PORT")
-	sslmode := os.Getenv("DB_SSL_MODE")
+	host := os.Getenv("POSTGRESQL_HOST")
+	user := os.Getenv("POSTGRESQL_USER")
+	password := os.Getenv("POSTGRESQL_PASSWORD")
+	dbname := os.Getenv("POSTGRESQL_DB_NAME")
+	port := os.Getenv("POSTGRESQL_PORT")
+	sslmode := os.Getenv("POSTGRESQL_SSL_MODE")
 
 	dsn := fmt.Sprintf("host=%v user=%v password=%v dbname=%v port=%v sslmode=%v", host, user, password, dbname, port, sslmode)
 	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
@@ -47,7 +47,7 @@ func CreateUser(login string, hashedPassword []byte) error {
 	return db.Create(&user).Error
 }
 
-func FindUserbyLogin(login string) (*models.User, error) {
+func FindUserByLogin(login string) (*models.User, error) {
 	var user models.User
 
 	result := db.Where("login = ?", login).Find(&user)

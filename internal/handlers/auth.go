@@ -4,6 +4,7 @@ import (
 	"goaway/internal/models"
 	"goaway/internal/services"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -52,7 +53,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	err := services.Login(req.Login, req.Password)
+	sessionToken, err := services.Login(req.Login, req.Password)
 	if err != nil {
 		switch err {
 		case services.ErrUserNotExists:
@@ -61,27 +62,52 @@ func Login(c *gin.Context) {
 		case services.ErrInvalidPassword:
 			c.JSON(http.StatusBadRequest, gin.H{"error": err})
 			return
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+			return
 		}
 	}
+
+	c.SetCookie(
+		"session_token",     // Name of the cookie
+		sessionToken,        // Value (the generated UUID)
+		3600*24,             // MaxAge in seconds (24 hours)
+		"/",                 // Path (accessible on all routes)
+		os.Getenv("DOMAIN"), // Domain
+		false,               // Secure: set to true only if using HTTPS
+		true,                // HttpOnly: prevents JavaScript from accessing the cookie
+	)
 
 	c.JSON(http.StatusOK, gin.H{"message": "You are logged in " + req.Login})
 }
 
 func Logout(c *gin.Context) {
-
-}
-
-func New(c *gin.Context) {
-	var req models.AuthRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
+	token, err := c.Cookie("session_token")
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{"message": "Already logged out"})
 		return
 	}
 
-	err := services.Reg(req.Login, req.Password)
+	err = services.Logout(token)
 	if err != nil {
 		switch err {
-
+		case services.ErrDelSession:
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+			return
 		}
 	}
+
+	c.SetCookie(
+		"session_token",
+		"",
+		-1, // MaxAge -1 tells the browser to delete the cookie immediately
+		"/",
+		os.Getenv("DOMAIN"),
+		false,
+		true,
+	)
+
+	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
 }

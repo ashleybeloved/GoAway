@@ -18,29 +18,33 @@ func main() {
 		log.Fatal("Failed to load .env file:", err)
 	}
 
-	// Connect to PostgreSQL Database
+	// Connect to PostgreSQL
 
 	err = repositories.StartPostgreSQL()
 	if err != nil {
-		log.Fatal("Could not connect to database:", err)
+		log.Fatal("Could not connect to PostgreSQL:", err)
 	}
-	log.Println("Connecting to PostgreSQL database successfully")
+	log.Println("Connecting to PostgreSQL successfully")
 
-	// Set Release Mode for Gin
+	// Connect to Redis
+
+	err = repositories.StartRedis()
+	if err != nil {
+		log.Fatal("Could not connect to Redis:", err)
+	}
+	log.Println("Connecting to Redis successfully")
+
+	// Run server
 
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 
-	// Handlers
-
 	r.POST("/reg", handlers.Reg)
 	r.POST("/login", handlers.Login)
-	r.POST("/logout")
+	r.POST("/logout", handlers.Logout)
 
 	r.POST("/new")
 	r.GET("/:id")
-
-	// Run server
 
 	log.Println("The server is running on :8080")
 	r.Run(":" + os.Getenv("PORT"))

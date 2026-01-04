@@ -1,6 +1,7 @@
 package services
 
 import (
+	"goaway/internal/middleware"
 	"goaway/internal/repositories"
 	"goaway/pkg"
 	"unicode"
@@ -19,6 +20,8 @@ var (
 	ErrHashPassword     = AuthError("password was not hashed")
 	ErrCreateUser       = AuthError("user was not created")
 	ErrInvalidPassword  = AuthError("invalid password")
+	ErrGenerateSession  = AuthError("session was not created")
+	ErrDelSession       = AuthError("session was not deleted")
 )
 
 func Reg(login string, password string) error {
@@ -42,7 +45,7 @@ func Reg(login string, password string) error {
 
 	// Check for avaiblity login in DB
 
-	user, err := repositories.FindUserbyLogin(login)
+	user, err := repositories.FindUserByLogin(login)
 	if err == nil && user != nil {
 		return ErrUserExists
 	}
@@ -64,15 +67,29 @@ func Reg(login string, password string) error {
 	return nil
 }
 
-func Login(login string, password string) error {
-	user, err := repositories.FindUserbyLogin(login)
-	if err != nil && user == nil {
-		return ErrUserNotExists
+func Login(login string, password string) (string, error) {
+	user, err := repositories.FindUserByLogin(login)
+	if err != nil || user == nil {
+		return "", ErrUserNotExists
 	}
 
 	err = pkg.CompareHashAndPassword(user.Password, password)
 	if err != nil {
-		return ErrInvalidPassword
+		return "", ErrInvalidPassword
+	}
+
+	sessionToken, err := middleware.GenerateSession(user.ID)
+	if err != nil {
+		return "", ErrGenerateSession
+	}
+
+	return sessionToken, nil
+}
+
+func Logout(token string) error {
+	err := middleware.DeleteSession(token)
+	if err != nil {
+		return ErrDelSession
 	}
 
 	return nil
