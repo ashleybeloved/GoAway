@@ -30,6 +30,11 @@ func ValidateSession(token string, userID uint) (uint, error) {
 		return 0, fmt.Errorf("error format ID in Redis")
 	}
 
+	err = repositories.RefreshSession(token)
+	if err != nil {
+		return 0, fmt.Errorf("error to refresh session")
+	}
+
 	return uint(id), nil
 }
 

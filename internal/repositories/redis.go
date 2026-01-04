@@ -54,3 +54,11 @@ func DelSession(token string) error {
 
 	return rdb.Del(ctx, key).Err()
 }
+
+func RefreshSession(token string) error {
+	key := "session:" + token
+	timeToLiveStr := os.Getenv("TIME_TO_LIVE")
+	timeToLive, _ := strconv.Atoi(timeToLiveStr)
+
+	return rdb.Expire(ctx, key, time.Duration(timeToLive)*time.Hour).Err()
+}
