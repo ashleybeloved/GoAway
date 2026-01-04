@@ -57,3 +57,24 @@ func FindUserByLogin(login string) (*models.User, error) {
 
 	return &user, result.Error
 }
+
+func CreateLink(url string, shortUrl string, userID uint) error {
+	link := models.Link{
+		URL:           url,
+		ShortURL:      shortUrl,
+		CreatorUserID: userID,
+	}
+
+	return db.Create(&link).Error
+}
+
+func FindURLByShortURL(ShortUrl string) (*models.Link, error) {
+	var link models.Link
+
+	result := db.Where("short_url = ?", ShortUrl).Find(&link)
+	if result.RowsAffected == 0 {
+		return nil, nil
+	}
+
+	return &link, nil
+}

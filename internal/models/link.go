@@ -6,5 +6,9 @@ type Link struct {
 	gorm.Model
 	URL           string `gorm:"not null"`
 	ShortURL      string `gorm:"uniqueIndex;not null"`
-	CreatorUserID string `gorm:"index"`
+	CreatorUserID uint   `gorm:"index"`
+}
+
+type LinkRequest struct {
+	URL string `json:"url"`
 }

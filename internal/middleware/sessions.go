@@ -19,7 +19,7 @@ func GenerateSession(userID uint) (string, error) {
 	return sessionToken, nil
 }
 
-func ValidateSession(token string, userID uint) (uint, error) {
+func ValidateSession(token string) (uint, error) {
 	idStr, err := repositories.GetSession(token)
 	if err != nil {
 		return 0, err

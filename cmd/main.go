@@ -39,12 +39,12 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 
+	r.GET("/:id", handlers.Redirect)
 	r.POST("/reg", handlers.Reg)
 	r.POST("/login", handlers.Login)
 	r.POST("/logout", handlers.Logout)
 
-	r.POST("/new")
-	r.GET("/:id")
+	r.POST("/new", handlers.New)
 
 	log.Println("The server is running on :8080")
 	r.Run(":" + os.Getenv("PORT"))
