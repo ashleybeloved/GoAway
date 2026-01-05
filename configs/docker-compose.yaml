@@ -18,6 +18,8 @@ services:
     restart: always
     ports:
       - "${REDIS_PORT}:6379"
+    environment:
+      - REDIS_ARGS=--requirepass ${REDIS_PASSWORD}
 
 volumes:
   postgres_data:

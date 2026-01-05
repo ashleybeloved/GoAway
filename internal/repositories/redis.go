@@ -14,13 +14,12 @@ var ctx = context.Background()
 
 func StartRedis() error {
 	port := os.Getenv("REDIS_PORT")
-	if port == "" {
-		port = "6379"
-	}
+	password := os.Getenv("REDIS_PASSWORD")
+	domain := os.Getenv("DOMAIN")
 
 	rdb = redis.NewClient(&redis.Options{
-		Addr:     "localhost:" + port,
-		Password: "",
+		Addr:     domain + ":" + port,
+		Password: password,
 		DB:       0,
 	})
 
