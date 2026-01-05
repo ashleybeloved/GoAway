@@ -12,10 +12,9 @@ I developed this project to explore Go, HTTP protocols, Redis, PostgreSQL, and m
 
 ## Features
 - Short URL generation.
-- Redirection with click tracking (via goroutines).
-- User dashboard: list links, view stats, delete links.
+- Redirection with click tracking.
+- User stats: list links, view clicks, delete links.
 - User authorization via Redis (sessions).
-- Access control: users can only manage their own links.
 
 ## Deployment
 ### 1. Environment Setup
@@ -27,8 +26,6 @@ cp .env.example .env
 ```bash
 docker-compose -f configs/docker-compose.yaml up --build
 ```
-
-Database migrations and required services are applied automatically on startup.
 
 ## API Specification
 ### Public Routes
