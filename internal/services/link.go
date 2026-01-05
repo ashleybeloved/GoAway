@@ -14,7 +14,7 @@ var (
 	ErrCreateLink     = LinkError("could not create link")
 	ErrURLNotExists   = LinkError("url not exists")
 	ErrInvalidRequest = LinkError("invalid json request")
-	ErrNotLink        = LinkError("invalid link (prefix http:// or https:// not found)")
+	ErrNotLink        = LinkError("invalid link")
 )
 
 func New(url string, userID uint) (string, error) {
@@ -30,10 +30,26 @@ func New(url string, userID uint) (string, error) {
 		url = "https://" + url
 	}
 
-	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	shortUrl := make([]byte, 6)
-	for i := range shortUrl {
-		shortUrl[i] = charset[rand.Intn(len(charset))]
+	var shortUrl []byte
+	var found bool
+
+	for i := 0; i <= 5; i++ {
+		found = false
+		const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+		shortUrl = make([]byte, 6)
+		for j := range shortUrl {
+			shortUrl[j] = charset[rand.Intn(len(charset))]
+		}
+
+		link, err := repositories.FindURLByShortURL(string(shortUrl))
+		if err != nil && link == nil {
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		return "", ErrCreateLink
 	}
 
 	err := repositories.CreateLink(url, string(shortUrl), userID)

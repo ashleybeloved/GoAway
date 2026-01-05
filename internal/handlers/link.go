@@ -4,7 +4,6 @@ import (
 	"goaway/internal/models"
 	"goaway/internal/services"
 	"net/http"
-	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -36,7 +35,7 @@ func New(c *gin.Context) {
 		}
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Your link: " + os.Getenv("DOMAIN") + "/" + shortUrl})
+	c.JSON(http.StatusOK, gin.H{"message": "http://localhost:8080" + "/" + shortUrl})
 }
 
 func Redirect(c *gin.Context) {
