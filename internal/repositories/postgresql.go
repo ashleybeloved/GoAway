@@ -68,13 +68,19 @@ func CreateLink(url string, shortUrl string, userID uint) error {
 	return db.Create(&link).Error
 }
 
-func FindURLByShortURL(ShortUrl string) (*models.Link, error) {
+func FindURLByShortURL(shortUrl string) (*models.Link, error) {
 	var link models.Link
 
-	result := db.Where("short_url = ?", ShortUrl).Find(&link)
+	result := db.Where("short_url = ?", shortUrl).Find(&link)
 	if result.RowsAffected == 0 {
 		return nil, nil
 	}
 
 	return &link, nil
+}
+
+func AddClick(shortUrl string) error {
+	return db.Model(&models.Link{}).
+		Where("short_url = ?", shortUrl).
+		Update("clicks", gorm.Expr("clicks + ?", 1)).Error
 }

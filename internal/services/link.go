@@ -30,26 +30,10 @@ func New(url string, userID uint) (string, error) {
 		url = "https://" + url
 	}
 
-	var shortUrl []byte
-	var found bool
-
-	for i := 0; i <= 5; i++ {
-		found = false
-		const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-		shortUrl = make([]byte, 6)
-		for j := range shortUrl {
-			shortUrl[j] = charset[rand.Intn(len(charset))]
-		}
-
-		link, err := repositories.FindURLByShortURL(string(shortUrl))
-		if err != nil && link == nil {
-			found = true
-			break
-		}
-	}
-
-	if !found {
-		return "", ErrCreateLink
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	shortUrl := make([]byte, 6)
+	for i := range shortUrl {
+		shortUrl[i] = charset[rand.Intn(len(charset))]
 	}
 
 	err := repositories.CreateLink(url, string(shortUrl), userID)
@@ -65,6 +49,8 @@ func Redirect(shortUrl string) (string, error) {
 	if err != nil || link == nil {
 		return "", ErrURLNotExists
 	}
+
+	go repositories.AddClick(shortUrl)
 
 	return link.URL, nil
 }
