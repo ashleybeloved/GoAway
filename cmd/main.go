@@ -14,14 +14,11 @@ import (
 func main() {
 	// Load .env
 
-	err := godotenv.Load("configs/.env")
-	if err != nil {
-		log.Fatal("Failed to load .env file:", err)
-	}
+	godotenv.Load(".env")
 
 	// Connect to PostgreSQL
 
-	err = repositories.StartPostgreSQL()
+	err := repositories.StartPostgreSQL()
 	if err != nil {
 		log.Fatal("Could not connect to PostgreSQL:", err)
 	}

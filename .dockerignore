@@ -1,0 +1,11 @@
+.git
+.gitignore
+
+*.exe
+main
+goaway
+
+*.log
+tmp/
+
+.env
