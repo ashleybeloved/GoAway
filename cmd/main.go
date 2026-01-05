@@ -14,7 +14,7 @@ import (
 func main() {
 	// Load .env
 
-	godotenv.Load(".env")
+	godotenv.Load("configs/.env", ".env")
 
 	// Connect to PostgreSQL
 

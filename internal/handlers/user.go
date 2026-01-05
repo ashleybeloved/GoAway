@@ -76,15 +76,10 @@ func Links(c *gin.Context) {
 }
 
 func Link(c *gin.Context) {
-	var req models.LinkUserRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid JSON"})
-		return
-	}
-
+	shortUrl := c.Param("id")
 	userID := c.MustGet("user_id").(uint)
 
-	link, err := services.Link(req.ShortURL, userID)
+	link, err := services.Link(shortUrl, userID)
 	if err != nil {
 		switch err {
 		case services.ErrLinkNotFound:
@@ -100,15 +95,11 @@ func Link(c *gin.Context) {
 }
 
 func DelLink(c *gin.Context) {
-	var req models.LinkUserRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid JSON"})
-		return
-	}
+	shortUrl := c.Param("id")
 
 	userID := c.MustGet("user_id").(uint)
 
-	err := services.DelLink(req.ShortURL, userID)
+	err := services.DelLink(shortUrl, userID)
 	if err != nil {
 		switch err {
 		case services.ErrLinkNotFound:
