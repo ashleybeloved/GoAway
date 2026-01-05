@@ -59,9 +59,9 @@ func main() {
 	{
 		profile.POST("/new", handlers.New)
 		profile.POST("/logout", handlers.Logout)
-		profile.GET("/links")
-		profile.GET("/links/:id")
-		profile.DELETE("/links/:id")
+		profile.GET("/links", handlers.Links)
+		profile.GET("/links/:id", handlers.Link)
+		profile.DELETE("/links/:id", handlers.DelLink)
 	}
 
 	r.GET("/:id", handlers.Redirect)

@@ -1,16 +1,19 @@
 package models
 
-import (
-	"gorm.io/gorm"
-)
+import "gorm.io/gorm"
 
-type User struct {
+type Link struct {
 	gorm.Model
-	Login    string `gorm:"uniqueIndex;not null"`
-	Password string `gorm:"not null"`
+	URL           string `gorm:"not null" json:"url"`
+	ShortURL      string `gorm:"uniqueIndex;not null" json:"short_url"`
+	CreatorUserID uint   `gorm:"index" json:"creator_id"`
+	Clicks        int    `gorm:"default:0" json:"clicks"`
 }
 
-type AuthRequest struct {
-	Login    string `json:"login"`
-	Password string `json:"password"`
+type LinkRequest struct {
+	URL string `json:"url"`
+}
+
+type LinkUserRequest struct {
+	ShortURL string `json:"short_url"`
 }

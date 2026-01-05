@@ -68,7 +68,7 @@ func CreateLink(url string, shortUrl string, userID uint) error {
 	return db.Create(&link).Error
 }
 
-func FindURLByShortURL(shortUrl string) (*models.Link, error) {
+func GetLinkByShortURL(shortUrl string) (*models.Link, error) {
 	var link models.Link
 
 	result := db.Where("short_url = ?", shortUrl).Find(&link)
@@ -79,8 +79,39 @@ func FindURLByShortURL(shortUrl string) (*models.Link, error) {
 	return &link, nil
 }
 
+func DelLinkByUser(shortUrl string, userID uint) error {
+	result := db.Where("short_url = ? AND creator_user_id = ?", shortUrl, userID).Delete(&models.Link{})
+
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("link not found or access denied")
+	}
+	return result.Error
+}
+
+func GetLinkByShortURLAndUser(shortUrl string, userID uint) (*models.Link, error) {
+	var link models.Link
+	result := db.Where("short_url = ? AND creator_user_id = ?", shortUrl, userID).First(&link)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &link, nil
+}
+
 func AddClick(shortUrl string) error {
 	return db.Model(&models.Link{}).
 		Where("short_url = ?", shortUrl).
 		Update("clicks", gorm.Expr("clicks + ?", 1)).Error
+}
+
+func GetAllUserLinks(userID uint) ([]models.Link, error) {
+	var links []models.Link
+
+	result := db.Where("creator_user_id = ?", userID).Find(&links)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return links, nil
 }

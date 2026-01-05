@@ -1,6 +1,7 @@
 package services
 
 import (
+	"goaway/internal/models"
 	"goaway/internal/repositories"
 	"math/rand"
 	"strings"
@@ -15,6 +16,8 @@ var (
 	ErrURLNotExists   = LinkError("url not exists")
 	ErrInvalidRequest = LinkError("invalid json request")
 	ErrNotLink        = LinkError("invalid link")
+	ErrLinkNotFound   = LinkError("link not found")
+	ErrGetLinks       = LinkError("could not get links")
 )
 
 func New(url string, userID uint) (string, error) {
@@ -45,7 +48,7 @@ func New(url string, userID uint) (string, error) {
 }
 
 func Redirect(shortUrl string) (string, error) {
-	link, err := repositories.FindURLByShortURL(shortUrl)
+	link, err := repositories.GetLinkByShortURL(shortUrl)
 	if err != nil || link == nil {
 		return "", ErrURLNotExists
 	}
@@ -53,4 +56,31 @@ func Redirect(shortUrl string) (string, error) {
 	go repositories.AddClick(shortUrl)
 
 	return link.URL, nil
+}
+
+func DelLink(shortUrl string, userID uint) error {
+	err := repositories.DelLinkByUser(shortUrl, userID)
+	if err != nil {
+		return ErrLinkNotFound
+	}
+
+	return nil
+}
+
+func Link(shortUrl string, userID uint) (*models.Link, error) {
+	link, err := repositories.GetLinkByShortURLAndUser(shortUrl, userID)
+	if err != nil {
+		return nil, ErrLinkNotFound
+	}
+
+	return link, nil
+}
+
+func Links(userID uint) ([]models.Link, error) {
+	links, err := repositories.GetAllUserLinks(userID)
+	if err != nil {
+		return nil, ErrGetLinks
+	}
+
+	return links, nil
 }
