@@ -96,7 +96,6 @@ func Link(c *gin.Context) {
 
 func DelLink(c *gin.Context) {
 	shortUrl := c.Param("id")
-
 	userID := c.MustGet("user_id").(uint)
 
 	err := services.DelLink(shortUrl, userID)
