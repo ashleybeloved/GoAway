@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"strconv"
 	"time"
@@ -66,4 +67,22 @@ func RefreshSession(token string) error {
 	timeToLive, _ := strconv.Atoi(timeToLiveStr)
 
 	return rdb.Expire(ctx, key, time.Duration(timeToLive)*time.Hour).Err()
+}
+
+func SetLink(url string, shortUrl string, userID uint) error {
+	key := fmt.Sprint("short_url:" + shortUrl)
+
+	return rdb.Set(ctx, key, url, 1*time.Hour).Err()
+}
+
+func GetLink(shortUrl string) (string, error) {
+	key := "short_url:" + shortUrl
+
+	return rdb.Get(ctx, key).Result()
+}
+
+func RefreshLink(shortUrl string) error {
+	key := "short_url:" + shortUrl
+
+	return rdb.Expire(ctx, key, 1*time.Hour).Err()
 }

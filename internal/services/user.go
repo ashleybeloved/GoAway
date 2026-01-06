@@ -39,7 +39,12 @@ func New(url string, userID uint) (string, error) {
 		shortUrl[i] = charset[rand.Intn(len(charset))]
 	}
 
-	err := repositories.CreateLink(url, string(shortUrl), userID)
+	err := repositories.SetLink(url, string(shortUrl), userID)
+	if err != nil {
+		return "", ErrCreateLink
+	}
+
+	err = repositories.CreateLink(url, string(shortUrl), userID)
 	if err != nil {
 		return "", ErrCreateLink
 	}
@@ -48,14 +53,23 @@ func New(url string, userID uint) (string, error) {
 }
 
 func Redirect(shortUrl string) (string, error) {
-	link, err := repositories.GetLinkByShortURL(shortUrl)
-	if err != nil || link == nil {
-		return "", ErrURLNotExists
+	var link *models.Link
+
+	url, err := repositories.GetLink(shortUrl)
+	if err != nil || url == "" {
+		link, err = repositories.GetLinkByShortURL(shortUrl)
+		if err != nil || link == nil {
+			return "", ErrURLNotExists
+		}
+
+		go repositories.AddClick(shortUrl)
+
+		return link.URL, nil
 	}
 
 	go repositories.AddClick(shortUrl)
 
-	return link.URL, nil
+	return url, nil
 }
 
 func DelLink(shortUrl string, userID uint) error {
