@@ -42,8 +42,6 @@ docker-compose -f configs/docker-compose.yaml up --build
 
 ## TODO
 - Swagger
-- Graceful Shutdown support
-- Role-Based Access Control (RBAC) and admin interface
 - Custom TTL per link
 - Better stats (User-Agent, Country, Referer etc.)
 - Frontend
