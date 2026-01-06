@@ -13,7 +13,7 @@ func (e LinkError) Error() string { return string(e) }
 
 var (
 	ErrCreateLink     = LinkError("could not create link")
-	ErrURLNotExists   = LinkError("url not exists")
+	ErrURLNotExists   = LinkError("page not found")
 	ErrInvalidRequest = LinkError("invalid json request")
 	ErrNotLink        = LinkError("invalid link")
 	ErrLinkNotFound   = LinkError("link not found")
