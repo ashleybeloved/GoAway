@@ -4,10 +4,10 @@ import "gorm.io/gorm"
 
 type Link struct {
 	gorm.Model
-	URL           string `gorm:"not null" json:"url"`
+	URL           string `gorm:"not null"             json:"url"`
 	ShortURL      string `gorm:"uniqueIndex;not null" json:"short_url"`
-	CreatorUserID uint   `gorm:"index" json:"creator_id"`
-	Clicks        int    `gorm:"default:0" json:"clicks"`
+	CreatorUserID uint   `gorm:"index"                json:"creator_id"`
+	Clicks        int    `gorm:"default:0"            json:"clicks"`
 }
 
 type LinkRequest struct {

@@ -57,8 +57,17 @@ func main() {
 		profile.POST("/new", handlers.New)
 		profile.POST("/logout", handlers.Logout)
 		profile.GET("/links", handlers.Links)
-		profile.GET("/links/:id", handlers.Link)
-		profile.DELETE("/links/:id", handlers.DelLink)
+		profile.GET("/links/:link_id", handlers.Link)
+		profile.DELETE("/links/:link_id", handlers.DelLink)
+	}
+
+	admin := r.Group("/admin")
+	admin.Use(handlers.AuthAdminMiddleware())
+	{
+		admin.POST("/new_custom", handlers.New)
+		admin.GET("/:id/links", handlers.Links)
+		admin.GET("/:id/link/:link_id", handlers.Links)
+		admin.DELETE("/:id/link/:link_id", handlers.DelLink)
 	}
 
 	r.GET("/:id", handlers.Redirect)
